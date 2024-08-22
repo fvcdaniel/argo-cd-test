@@ -1,0 +1,111 @@
+targetRevision: HEAD
+
+applications:
+  - name: argo-cd
+    enabled: true
+    selfHeal: true
+    namespace: default
+
+  - name: argocd-apps
+    enabled: true
+    selfHeal: true
+    namespace: default
+    valueFiles:
+      - "envs/production/values.yaml"
+
+  - name: app1
+    enabled: true
+    selfHeal: true
+    namespace: default
+    valueFiles:
+      - "./values.yaml"
+
+  # - name: adserver
+  #   suffix: development
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/development/values.yaml"
+  #     - "secrets://envs/development/secrets.yaml"
+
+  # - name: adserver-web
+  #   suffix: development
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/development/values.yaml"
+  #     - "secrets://envs/development/secrets.yaml"
+
+  # - name: adserver-ip-service
+  #   suffix: development
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/development/values.yaml"
+  #     - "secrets://envs/development/secrets.yaml"
+
+  # - name: adserver-public-api
+  #   suffix: development
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/development/values.yaml"
+  #     - "secrets://envs/development/secrets.yaml"
+
+  # - name: adserver
+  #   suffix: approval
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/approval/values.yaml"
+  #     - "secrets://envs/approval/secrets.yaml"
+
+  # - name: adserver-web
+  #   suffix: approval
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/approval/values.yaml"
+  #     - "secrets://envs/approval/secrets.yaml"
+
+  # - name: adserver
+  #   suffix: production
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/production/values.yaml"
+  #     - "secrets://envs/production/secrets.yaml"
+
+  # - name: adserver-web
+  #   suffix: production
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/production/values.yaml"
+  #     - "secrets://envs/production/secrets.yaml"
+
+  # - name: adserver-ip-service
+  #   suffix: production
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/production/values.yaml"
+  #     - "secrets://envs/production/secrets.yaml"
+
+  # - name: adserver-public-api
+  #   suffix: production
+  #   enabled: true
+  #   selfHeal: false
+  #   namespace: default
+  #   valueFiles:
+  #     - "envs/production/values.yaml"
+  #     - "secrets://envs/production/secrets.yaml"

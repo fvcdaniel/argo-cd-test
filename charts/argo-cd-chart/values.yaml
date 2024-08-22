@@ -1,0 +1,129 @@
+argo-cd:
+  crds:
+    install: false
+  dex:
+    enabled: false
+  notifications:
+    enabled: false
+  applicationSet:
+    enabled: false
+
+  configs:
+    params:
+      server.insecure: true
+
+    rbac:
+      policy.default: role:readonly
+      policy.csv: |
+        p, devuser, applications, sync, */*, allow
+        p, role:org-admin, applications, *, */*, allow
+        p, role:org-admin, clusters, get, *, allow
+        p, role:org-admin, repositories, get, *, allow
+        p, role:org-admin, repositories, create, *, allow
+        p, role:org-admin, repositories, update, *, allow
+        p, role:org-admin, repositories, delete, *, allow
+        p, role:org-admin, projects, get, *, allow
+        p, role:org-admin, projects, create, *, allow
+        p, role:org-admin, projects, update, *, allow
+        p, role:org-admin, projects, delete, *, allow
+        p, role:org-admin, logs, get, *, allow
+        p, role:org-admin, exec, create, */*, allow
+        g, Adforce-Digital:core-team, role:org-admin
+    cm:
+      annotations:
+        meta.helm.sh/release-namespace: argo-cd-local
+        meta.helm.sh/release-name: argo-cd
+      accounts.qauser: login
+      accounts.devuser: login
+      # helm.valuesFileSchemes: >-
+      #   secrets
+
+  server:
+    ingress:
+      # Disable this to not use ingress exposed to the internet
+      enabled: false
+      # controller: aws
+      # ingressClassName: alb
+      # annotations:
+      #   alb.ingress.kubernetes.io/scheme: internet-facing
+      #   alb.ingress.kubernetes.io/target-type: ip
+      #   alb.ingress.kubernetes.io/target-group-attributes: "stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=600,deregistration_delay.timeout_seconds=30,load_balancing.algorithm.type=round_robin"
+      #   alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      #   alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+      #   alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:381491909478:certificate/c5eeeb77-79e4-482c-99ba-895609c10d32
+      #   alb.ingress.kubernetes.io/group.name: app-ingress
+      #   alb.ingress.kubernetes.io/load-balancer-name: app-lb
+      # aws:
+      #   serviceType: NodePort # <- Used with target-type: ip
+      #   backendProtocolVersion: HTTP1
+      # hostname: argocd.adftech.com.br
+
+  notifications:
+    logLevel: "info"
+
+  # Installing sops and helm-secrets plugins in ArgoCD's repo-server container, ref: https://github.com/jkroepke/helm-secrets/wiki/ArgoCD-Integration#option-2-init-container
+  repoServer:
+    serviceAccount:
+      create: false
+      # name: "argocd-repo-server"
+      # annotations:
+      #   eks.amazonaws.com/role-arn: arn:aws:iam::381491909478:role/helm_argocd_kms_role
+      # automountServiceAccountToken: true
+
+    env:
+      - name: HELM_PLUGINS
+        value: /custom-tools/helm-plugins/
+      - name: HELM_SECRETS_SOPS_PATH
+        value: /custom-tools/sops
+      - name: HELM_SECRETS_VALS_PATH
+        value: /custom-tools/vals
+      - name: HELM_SECRETS_KUBECTL_PATH
+        value: /custom-tools/kubectl
+      - name: HELM_SECRETS_CURL_PATH
+        value: /custom-tools/curl
+      - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
+        value: "true"
+      - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+        value: "true"
+      - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
+        value: "true"
+    volumes:
+      - name: custom-tools
+        emptyDir: {}
+    volumeMounts:
+      - mountPath: /custom-tools
+        name: custom-tools
+
+    initContainers:
+      - name: download-tools
+        image: alpine:latest
+        command: [sh, -ec]
+        env:
+          - name: HELM_SECRETS_VERSION
+            value: "4.1.1"
+          - name: KUBECTL_VERSION
+            value: "1.24.6"
+          - name: VALS_VERSION
+            value: "0.18.0"
+          - name: SOPS_VERSION
+            value: "3.7.3"
+        args:
+          - |
+            mkdir -p /custom-tools/helm-plugins
+            wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v${HELM_SECRETS_VERSION}/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-;
+
+            wget -qO /custom-tools/sops https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux
+            wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+
+            wget -qO- https://github.com/variantdev/vals/releases/download/v${VALS_VERSION}/vals_${VALS_VERSION}_linux_amd64.tar.gz | tar -xzf- -C /custom-tools/ vals;
+
+            # helm secrets wrapper mode installation (optional)
+            # RUN printf '#!/usr/bin/env sh\nexec %s secrets "$@"' "${HELM_SECRETS_HELM_PATH}" >"/usr/local/sbin/helm" && chmod +x "/custom-tools/helm"
+
+            chmod +x /custom-tools/*
+        volumeMounts:
+          - mountPath: /custom-tools
+            name: custom-tools
+
+
+# aws sts decode-authorization-message --output text --encoded-message "PezSK7i0BX0jffzc3Bzh_F7Az4cXIEpFlwrQZ0VzESssfSoF9Sn28hSPltLbeTSNdJarDShXZK6EiXpfHQTgjJwiFv4vbSucNM3VsE3dkBuymhrRDunfhDW66hk58NvWEFTkDa-i44-bvXaDThuOxr1cPRgyHmhWFWux0Bm_IH52wdhGgYh6qdCz63Q0aH_Npkmt4OHCU6qUhG--h8Bumeou1KoM7SfTDhVZOTGiZg59U5_4XlyxSIsh_QLj2IPJDWZSA-mj2Ex1RKx9vkZ637ktIY59qxut8J32ShxIa-xBheh9t5xt2ZYKMyO_W13GNplraHCSkkgDL9g0ZluDrYAu0GgrsFA3LJHDRtJwwK5DJciMVVee-O0oyBLAXby974UextxbwLgbzWwIOFeGaG0LnCDq2ENa_cXJazR66O26MewClqyjF9ZA_kX-y8NHeRLZttu9WuBu_VESMjdgEV8zPjIBmC8DXJjAiWXcKllvK5X45fNoFBrfjw74F8n3ChFyPvHvuaxa022GI4Fni5YakQc4LIq2CJZiFOvlweTUAjl_mJTTgMVi4Ct665zRfr_oGjXFm2WgAY6Pb2TCMjQVzXaOFGaNiYJA1V2cGAjqWGBlZxcg_7tWVNbzcTgy5qf1tBSBvKQZZyC9PTl1Mv9e" | jq

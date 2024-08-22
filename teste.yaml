@@ -1,0 +1,52 @@
+---
+# Source: app1/charts/application/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-test
+  labels:
+    
+    app.kubernetes.io/name: "application-test"
+    app.kubernetes.io/instance: "test"
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: application-test
+---
+# Source: app1/charts/application/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-test
+  labels:
+    
+    app.kubernetes.io/name: "application-test"
+    app.kubernetes.io/instance: "test"
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: "Helm"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: application-test
+  template:
+    metadata:
+      labels:
+        app: application-test
+    spec:
+      containers:
+        - name: application
+          image: "nginx:1.21"
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
