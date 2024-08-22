@@ -37,7 +37,7 @@ spec:
     automated:
       prune: true
       selfHeal: {{ if eq $app.selfHeal false }}false{{ else }}true{{ end }}
-      # allowEmpty: false
+      allowEmpty: false
     syncOptions:
     - Validate=false
     - CreateNamespace=true
