@@ -4,19 +4,21 @@ applications:
   - name: argo-cd
     enabled: true
     selfHeal: true
-    namespace: default
+    namespace: argocd-local
+    valueFiles:
+      - "./values.yaml"
 
   - name: argocd-apps
     enabled: true
     selfHeal: true
-    namespace: default
+    namespace: argocd-local
     valueFiles:
       - "envs/production/values.yaml"
 
   - name: app1
     enabled: true
     selfHeal: true
-    namespace: default
+    namespace: argocd-local
     valueFiles:
       - "./values.yaml"
 
