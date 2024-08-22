@@ -7,8 +7,9 @@
 {{- end }}
 
 {{- define "application.labels" -}}
-app.kubernetes.io/name: {{ include "application.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/name: "{{ include "application.name" . }}"
+app.kubernetes.io/instance: "{{ .Release.Name }}"
+app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+app.kubernetes.io/managed-by: "{{ .Release.Service }}"
 {{- end }}
+
