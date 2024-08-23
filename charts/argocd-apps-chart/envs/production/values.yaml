@@ -28,7 +28,7 @@ applications:
     namespace: argocd-prometheus
     valueFiles:
       - "./values.yaml"
-      - "./kustomize.yaml"
+      # - "./kustomize.yaml"
 
   # - name: adserver
   #   suffix: development
