@@ -22,12 +22,12 @@ applications:
     valueFiles:
       - "./values.yaml"
 
-  - name: prometheus
-    enabled: true
-    selfHeal: true
-    namespace: argocd-prometheus
-    valueFiles:
-      - "values.yaml"
+  # - name: prometheus
+  #   enabled: true
+  #   selfHeal: true
+  #   namespace: argocd-prometheus
+  #   valueFiles:
+  #     - "values.yaml"
 
   # - name: adserver
   #   suffix: development
