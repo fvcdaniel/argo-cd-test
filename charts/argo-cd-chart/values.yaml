@@ -31,7 +31,7 @@ argo-cd:
         g, Adforce-Digital:core-team, role:org-admin
     cm:
       annotations:
-        meta.helm.sh/release-namespace: argo-cd-local
+        meta.helm.sh/release-namespace: argocd-local
         meta.helm.sh/release-name: argo-cd
       accounts.qauser: login
       accounts.devuser: login
