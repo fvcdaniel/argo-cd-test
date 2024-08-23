@@ -27,7 +27,7 @@ applications:
     selfHeal: true
     namespace: argocd-prometheus
     valueFiles:
-      - "./values.yaml":
+      - "./values.yaml"
 
   # - name: adserver
   #   suffix: development
